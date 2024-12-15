@@ -25,7 +25,8 @@ PROMPTS = {
     2. If the request clearly points to a file, set needs_search to true
     3. search_keywords should be the most critical filename or keyword
     4. If it's a command like creating or generating a file, no file search is needed
-    5. If it's a command like open, start, run, view, or copy a file, search the file and return search results
+    5. if the command is to open, start, run, or copy a file should the file be searched and the search results returned; if it is for output, print, or view, no search is needed.
+    6 .Only initiate a search when specific file names are involved.
     """,
     
     "command_generator": """
@@ -48,6 +49,10 @@ PROMPTS = {
     2. Command must accurately correspond to user intent
     3. If no valid command can be generated, set success to false
     4. The output command must strictly follow Windows command line syntax.
+    5.It must strictly follow the syntax of Windows command line.
+
+    
+    
     Example:  
     Input "Create a folder named test3333 on C drive"  
     Return: {"command": "mkdir C:\test3333", 
@@ -57,6 +62,11 @@ PROMPTS = {
     Input "What are the processes that are occupying 11434"  
     Return: {"command": "netstat -ano | findstr 11434", 
             "description": "check the processes that are occupying 11434", 
+            "success": true} 
+    Example:  
+    Input "Copy the files from the 3d.model folder to the code6 folder"  
+    Return: {"command": "copy "C:\zhubo\3d.model\*" "C:\code6" ", 
+            "description": "Copy the files from the 3d.model folder to the code6 folde", 
             "success": true} 
     """ 
 }
@@ -273,7 +283,7 @@ Special notes:
             return  
         
         print(f"\nReceived user input: '{user_input}'")  
-    
+        search_results = []
         search_decision = self.determine_search_need(user_input)  
     
         if search_decision['needs_search']:  
@@ -314,7 +324,10 @@ Special notes:
         else:
             print(search_results)  
             print("Unable to generate valid command")  
-
+        
+        
+        
+                 
     def call_model(self, prompt, context_length=5):  
         """  
         Call Ollama model with conversation history context  
